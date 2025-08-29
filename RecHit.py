@@ -13,8 +13,8 @@ class RecHit:
     
     def SetHitPosition(self):
         # two positions, lateral ambiguity
-        j = self.Layer * CellHeight  + 0.5 * CellHeight - 2 * CellHeight
-        i_offset = self.Wire * CellLength + (0.5 if (self.Layer % 2 == 1) else 1) * CellLength - 8.25 * CellLength
+        j = self.Layer * CellHeight  + 0.5 * CellHeight
+        i_offset = self.Wire * CellLength + (0.5 if (self.Layer % 2 == 1) else 1) * CellLength 
         
         iL = i_offset - (self.Timestamp * VDrift)
         iR = i_offset + (self.Timestamp * VDrift)
