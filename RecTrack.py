@@ -4,30 +4,63 @@ import math
 import matplotlib.pyplot as plt
 import ROOT
 
-
 CellLength = 4.2 # cm
 CellHeight = 1.3 # cm
 
 class RecTrack:
+    """
+    --------
+    Members
+    --------
+    
+    Hits: the hits associated with the track, loosely selected based on the trigger primitive of reference with the SelectHits() function. 
+          After applying the class FitTPLateralities() method, the hits are reduced to the 3 or 4 hits most likely belonging to the reference TP. Necessary to initialize a RecTrack instance
+    
+    nHits: the number of hits of the track, after the FitTPLateralities() method. It is initiated to 0
+    
+    TP: the trigger primitive of reference. Necessary to initialize a RecTrack instance
+    
+    Slope: the track slope, after the FitTPLateralities() method. It is initiated to 0 
+    
+    Intercept: the track vertical intercept, after the FitTPLateralities() method. It is initiated to 0 
+    
+    XIntercept: the track horizontal intercept (between the 2nd and the 3rd layers of the MiniDT), after the FitTPLateralities() method. It is initiated to 0 
+    
+    ChiSquare: the track chi square, after the FitTPLateralities() method. It is initiated to 0 
+    
+    
+    --------
+    Methods
+    --------
+    
+    __init__(self, hits, tp): RecTrack initialization. To initialize, a selection of hits and their corresponding trigger primitive are required
+    
+    FitTPLateralities(self): from the collection of hits associated with the trigger primitive at initialization, it selects the ones most likely belonging to the TP, i.e. they share the same layer and wire values.
+                             It retrieves the TP-computed laterality value for each hit, and it fits the resulting positions with the ROOT framework.
+                             The resulting slope, intercept, Xintercept and chi square values are assigned to the RecTrack members.
+    
+    PlotFit(self): it plots RecTrack (hits and fitted track) after the FitTPLateralities() results, in a cross-section view of the MiniDT.
+    
+    
+    """
     def __init__(self, hits, tp):
         self.Hits = hits
         self.nHits = 0
         self.TP = tp
         self.Slope = 0
         self.Intercept = 0
-        self.XIntercept = 0 # between 2nd and 3rd layer
+        self.XIntercept = 0
         self.ChiSquare = 0 
             
-    def Fit_TP_lateralities(self): # one station at a time
+    def FitTPLateralities(self): 
         HitsValidLateral_x = []
         HitsValidLateral_y = []
         SelectedHits = []
         
-        for layer, hit in enumerate(self.TP['hits']): # progressive layers
+        for layer, hit in enumerate(self.TP['hits']): # the trigger primitive is defined with progressive layers
             wire = hit['wi']  
-            if hit['valid'] == 1: # TP quality can be inferred from this
-                for i, matching_hit in enumerate (self.Hits): # match con ts forse quasi impossibile, 
-                                                              # meglio con wi, ly (si può averne più di una, pace)
+            if hit['valid'] == 1: # check for hit validity in trigger primitive
+                for i, matching_hit in enumerate (self.Hits):
                     if matching_hit.Layer == layer and matching_hit.Wire == wire:
                         self.nHits += 1
                         SelectedHits.append(matching_hit)
@@ -52,7 +85,7 @@ class RecTrack:
             self.XIntercept = (2 * CellHeight - FitFunction.GetParameter(1)) / FitFunction.GetParameter(0)
             self.ChiSquare = FitFunction.GetChisquare()
             
-    def Plot_Fit(self): # it just depends on hits that belong to the RecTrack
+    def PlotFit(self): # it just depends on hits that belong to the RecTrack
         PlotCells = {}
         PlotWires = {}
         PlotHits = {}
@@ -61,63 +94,56 @@ class RecTrack:
         
         LayerList = [4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1]
         
-        b=4.2 # da mettere in cm e da prendere da RecHit
-        h=1.3
-#         off=[0,-b/2,0,-b/2]
-        off=[b/2,0,b/2,0]
+        b = 4.2 
+        h = 1.3
+        off = [b/2, 0, b/2, 0]
         
-        plt.figure(figsize=(12, 10), dpi=300)
+        plt.figure(figsize = (12, 10), dpi = 300)
         plt.gca().axes.xaxis.set_ticklabels([])
         plt.gca().yaxis.set_ticklabels([])
-        plt.tick_params(bottom = False, left=False) 
+        plt.tick_params(bottom = False, left = False) 
         
         for cell in range(0,64):
             mfc = 'w'
-            x = b * (WireList[cell] - 1) + off[LayerList[cell] - 1] # + x0
-            y = h * (LayerList[cell] - 1) # + y0
-            PlotCells['L'+str(LayerList[cell])+'W'+str(WireList[cell])] = plt.Rectangle((x,y),b,h,ec='k',fc=mfc)
-            PlotWires['L'+str(LayerList[cell])+'W'+str(WireList[cell])] = plt.Circle((x + b/2, y + h/2),radius=0.1,fc='k')
+            x = b * (WireList[cell] - 1) + off[LayerList[cell] - 1]
+            y = h * (LayerList[cell] - 1)
+            PlotCells['L' + str(LayerList[cell]) + 'W' + str(WireList[cell])] = plt.Rectangle((x, y), b, h, ec = 'k', fc = mfc)
+            PlotWires['L' + str(LayerList[cell]) + 'W' + str(WireList[cell])] = plt.Circle((x + b / 2, y + h / 2),radius = 0.1,fc = 'k')
             
-            plt.gca().add_patch(PlotCells['L'+str(LayerList[cell])+'W'+str(WireList[cell])])
-            plt.gca().add_patch(PlotWires['L'+str(LayerList[cell])+'W'+str(WireList[cell])])
+            plt.gca().add_patch(PlotCells['L' + str(LayerList[cell]) + 'W' + str(WireList[cell])])
+            plt.gca().add_patch(PlotWires['L' + str(LayerList[cell]) + 'W' + str(WireList[cell])])
             plt.axis('scaled')
         
         for hit in self.Hits:
             mfc = 'powderblue'
-            x = b * (hit.Wire) + off[hit.Layer] # + x0
-            y = h * (hit.Layer) + h / 2 # + y0
+            x = b * (hit.Wire) + off[hit.Layer]
+            y = h * (hit.Layer) + h / 2
                         
-            PlotCells['L'+str(hit.Layer + 1)+'W'+str(hit.Wire + 1)] = plt.Rectangle((x, y - h/2),b,h,ec='k',fc=mfc)
-            PlotWires['L'+str(hit.Layer + 1)+'W'+str(hit.Wire + 1)] = plt.Circle((x + b/2, y),radius=0.1,fc='k')
-            plt.gca().add_patch(PlotCells['L'+str(hit.Layer + 1)+'W'+str(hit.Wire + 1)])
-            plt.gca().add_patch(PlotWires['L'+str(hit.Layer + 1)+'W'+str(hit.Wire + 1)])
+            PlotCells['L' + str(hit.Layer + 1) + 'W' + str(hit.Wire + 1)] = plt.Rectangle((x, y - h / 2), b, h, ec='k', fc=mfc)
+            PlotWires['L' + str(hit.Layer + 1) + 'W' + str(hit.Wire + 1)] = plt.Circle((x + b / 2, y), radius = 0.1, fc = 'k')
+            plt.gca().add_patch(PlotCells['L' + str(hit.Layer + 1) + 'W' + str(hit.Wire + 1)])
+            plt.gca().add_patch(PlotWires['L' + str(hit.Layer + 1) + 'W' + str(hit.Wire + 1)])
                         
-#             plt.axis('scaled')
-                                                
-            PlotHits['L'+str(hit.Layer + 1)+'W'+str(hit.Wire + 1)] = plt.Circle((hit.Position[hit.Laterality][0] + 8.25 * CellLength, hit.Position[hit.Laterality][1] + 2 * CellHeight),radius=0.2,fc='royalblue')
+            PlotHits['L' + str(hit.Layer + 1) + 'W' + str(hit.Wire + 1)] = plt.Circle((hit.Position[hit.Laterality][0], hit.Position[hit.Laterality][1]),radius = 0.2,fc = 'royalblue')
                               
-            plt.gca().add_patch(PlotHits['L'+str(hit.Layer + 1)+'W'+str(hit.Wire + 1)])
+            plt.gca().add_patch(PlotHits['L' + str(hit.Layer + 1) + 'W' + str(hit.Wire + 1)])
             
             plt.axis('scaled')
                 
-        plt.axline((8.25 * CellLength, (self.Intercept + 2 * CellHeight)), slope = self.Slope, linewidth=1, color='mediumvioletred')
+        plt.axline((0, (self.Intercept)), slope = self.Slope, linewidth = 1, color = 'mediumvioletred')
         plt.show()
         print(f"Slope: {self.Slope}, Intercept: {self.XIntercept} cm, ChiSquare: {self.ChiSquare}")
        
     
-    def Residual_Hit_Wire_Distance(self): # solo con 4 hit?
-#         result = []
+    def Residual_Hit_Wire_Distance(self): 
         for hit in self.Hits:
             x = hit.Position[hit.Laterality][0]
             y = hit.Position[hit.Laterality][1]
             x_offset = hit.Wire * CellLength + (0.5 if (hit.Layer % 2 == 1) else 1) * CellLength
             LayerIntercept = (y - self.Intercept) / self.Slope
             if hit.Laterality == 0:
-#                 result.append((x - LayerIntercept, abs(x - x_offset))) 
                 return(x - LayerIntercept, abs(x - x_offset))
             else:
-#                 result.append((LayerIntercept - x, abs(x - x_offset)))
                 return(LayerIntercept - x, abs(x - x_offset))
-#         return result
         
         
