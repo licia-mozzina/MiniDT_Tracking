@@ -7,6 +7,11 @@ import ROOT
 CellLength = 4.2 # cm
 CellHeight = 1.3 # cm
 
+# c_values = 1000
+m_values = 1000
+
+# termina descrizione hough
+
 class RecTrack:
     """
     --------
@@ -39,7 +44,11 @@ class RecTrack:
                              It retrieves the TP-computed laterality value for each hit, and it fits the resulting positions with the ROOT framework.
                              The resulting slope, intercept, Xintercept and chi square values are assigned to the RecTrack members.
     
-    PlotFit(self): it plots RecTrack (hits and fitted track) after the FitTPLateralities() results, in a cross-section view of the MiniDT.
+    PlotFit(self): this function plots RecTrack (hits and fitted track) after the FitTPLateralities() results, in a cross-section view of the MiniDT.
+    
+    ResidualHitWireDistance(self): this function computes the difference between the measured horizontal hit position and the expected hit position from the track fitting. It returns this difference and the distance of the hit orizontal position from the corresponding cell's anodic wire
+    
+    HoughFit(self):
     
     
     """
@@ -130,7 +139,8 @@ class RecTrack:
             
             plt.axis('scaled')
                 
-        plt.axline((0, (self.Intercept)), slope = self.Slope, linewidth = 1, color = 'mediumvioletred')
+#         plt.axline((0, (self.Intercept)), slope = self.Slope, linewidth = 1, color = 'mediumvioletred')
+        plt.axline((self.XIntercept, 0), slope = self.Slope, linewidth = 1, color = 'mediumvioletred') # CORREGGIIII
         plt.show()
         print(f"Slope: {self.Slope}, Intercept: {self.XIntercept} cm, ChiSquare: {self.ChiSquare}")
        
@@ -145,5 +155,45 @@ class RecTrack:
                 return(x - LayerIntercept, abs(x - x_offset))
             else:
                 return(LayerIntercept - x, abs(x - x_offset))
+            
+    def HoughFit(self, c_values):
+        accumulator = np.zeros((c_values, m_values))
+        dm = 4 / m_values
+
+        m_plot = []
+        c_plot = []
+
+        for hit in self.Hits:
+            x = [hit.Position[0][0], hit.Position[1][0]]
+            y = hit.Position[0][1]
+
+            for m_index in range(m_values):
+                for i in range (2):
+                    m = m_index * dm - 2    # [0, 4] --> [-2, 2]
+                    c = x[i] + m * y
+                    accumulator[int(round(c * (c_values / 100)))][m_index] += 1
+
+                    m_plot.append(m)
+                    c_plot.append(c)
+
+        accumulator_max = np.argmax(accumulator, axis=None)
+        if accumulator_max < 3:
+            m_track = 999
+            c_track = 999
+        else:
+            accumulator_peak = np.unravel_index(np.argmax(accumulator, axis=None), accumulator.shape)
+            m_track = accumulator_peak[1] * dm - 2
+            c_track = accumulator_peak[0] / (c_values / 100)
+
+        hist, xedges, yedges, image = plt.hist2d(m_plot, c_plot, bins=[1000,1000], range=[[-2, 2],[-20, 100]])
+        plt.colorbar()
+        plt.show()
+    #     plt.savefig(f"/eos/user/l/lmozzina/MiniDT/matching/run_011049/hough/accumulators/accumulator_{n_event}_{n_track}.png")
+        plt.clf()
+
+        self.Slope = - 1 / m_track
+        self.XIntercept = c_track # SBAGLIATA, DOVREBBE ESSERE tra 2 e 3 layer
         
+            # fit
+
         
