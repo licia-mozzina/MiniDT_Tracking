@@ -17,9 +17,9 @@ def FillHist(values, hist):
     
     """
     for value in values:
-        if len(value) > 1:
+        if type(value) != int and len(value) > 1:
             hist.Fill(value[0])
-        else:
+        elif type(value) == int:
             hist.Fill(value)
             
 def FillHistResiduals(values, hist, dim = 1):
@@ -155,7 +155,7 @@ def PlotSlopes(slope_X, slope_Y, run, out_dir, n_hits = 0):
     histo_Y.Draw()
     c.Draw()
 
-    c.SaveAs(f"TrackSlopes_{run}_{image_title}.png")
+    c.SaveAs(f"{out_dir}/TrackSlopes_{run}_{image_title}.png")
 
 def PlotXIntercepts(x_intercept_X, x_intercept_Y, run, our_dir, n_hits = 0):
     """
@@ -224,7 +224,7 @@ def PlotXIntercepts(x_intercept_X, x_intercept_Y, run, our_dir, n_hits = 0):
     histo_Y.Draw()
     c.Draw()
 
-    c.SaveAs(f"TrackXIntercepts_{run}_{image_title}.png")
+    c.SaveAs(f"{out_dir}/TrackXIntercepts_{run}_{image_title}.png")
     
 def PlotChiSquares(chi_square_X, chi_square_Y, run, out_dir, n_hits = 0):
     """
@@ -293,7 +293,7 @@ def PlotChiSquares(chi_square_X, chi_square_Y, run, out_dir, n_hits = 0):
     histo_Y.Draw()
     c.Draw()
 
-    c.SaveAs(f"TrackChiSquare_{run}_{image_title}.png")
+    c.SaveAs(f"{out_dir}/TrackChiSquare_{run}_{image_title}.png")
     
 def PlotResiduals(residual_X, residual_Y, run, out_dir, n_hits = 0):
     """
@@ -362,7 +362,7 @@ def PlotResiduals(residual_X, residual_Y, run, out_dir, n_hits = 0):
     histo_Y.Draw()
     c.Draw()
 
-    c.SaveAs(f"TrackResiduals_{run}_{image_title}.png")
+    c.SaveAs(f"{out_dir}/TrackResiduals_{run}_{image_title}.png")
     
 def PlotResidualsVsDistance(residual_X, residual_Y, run, out_dir):
     """
@@ -399,7 +399,7 @@ def PlotResidualsVsDistance(residual_X, residual_Y, run, out_dir):
     histo_Y.Draw()
     c.Draw()
 
-    c.SaveAs(f"TrackResidualsVsDistance_{run}.png")
+    c.SaveAs(f"{out_dir}/TrackResidualsVsDistance_{run}.png")
     
 
     
