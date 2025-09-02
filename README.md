@@ -58,8 +58,11 @@ Example plots can be found in [here](Plots_example_data_cosmic_rays_15ns).
 
 Below, an example of the reconstructed track and of the _Hough accumulator_.
 **Event display**
+
 <img src="https://github.com/licia-mozzina/MiniDT_Tracking/blob/main/Plots_example_data_cosmic_rays_15ns/event_display.png" width="500">
+
 **Hough accumulator**
+
 <img src="https://github.com/licia-mozzina/MiniDT_Tracking/blob/main/Plots_example_data_cosmic_rays_15ns/Hough_accumulator.png" width="500">
 
 
