@@ -148,16 +148,16 @@ def PlotSlopes(slope_X, slope_Y, run, out_dir, n_hits = 0):
     c = ROOT.TCanvas("c", "c", 1000, 400)
     c.Divide(2, 1)
     c.cd(1)
-    histo_X.SetAxisRange(0, 1.5 * max_X, "Y")
+    histo_X.SetAxisRange(0, 1.2 * max_X, "Y")
     histo_X.Draw()
     c.cd(2)
-    histo_Y.SetAxisRange(0, 1.5 * max_Y, "Y")
+    histo_Y.SetAxisRange(0, 1.2 * max_Y, "Y")
     histo_Y.Draw()
     c.Draw()
 
     c.SaveAs(f"{out_dir}/TrackSlopes_{run}_{image_title}.png")
 
-def PlotXIntercepts(x_intercept_X, x_intercept_Y, run, our_dir, n_hits = 0):
+def PlotXIntercepts(x_intercept_X, x_intercept_Y, run, out_dir, n_hits = 0):
     """
     This function plots the distribution of track intercepts with the chamber's lower edge (all tracks, 3-hit and 4-hit tracks) as histograms and saves it in .png format
     
@@ -217,10 +217,10 @@ def PlotXIntercepts(x_intercept_X, x_intercept_Y, run, our_dir, n_hits = 0):
     c = ROOT.TCanvas("c", "c", 1000, 400)
     c.Divide(2, 1)
     c.cd(1)
-    histo_X.SetAxisRange(0, 1.5 * max_X, "Y")
+    histo_X.SetAxisRange(0, 1.2 * max_X, "Y")
     histo_X.Draw()
     c.cd(2)
-    histo_Y.SetAxisRange(0, 1.5 * max_Y, "Y")
+    histo_Y.SetAxisRange(0, 1.2 * max_Y, "Y")
     histo_Y.Draw()
     c.Draw()
 
@@ -247,22 +247,22 @@ def PlotChiSquares(chi_square_X, chi_square_Y, run, out_dir, n_hits = 0):
     """
     
     if n_hits == 3:
-        chi_square_3hits_X = [chi_square for chi_square in chi_square_X if chi_square_X[1] == 3]
+        chi_square_3hits_X = [chi_square for chi_square in chi_square_X if chi_square[1] == 3]
         histo_X = ROOT.TH1F("ChiSquare_3hits_X", "MiniDT X ChiSquare (3 hits); ChiSquare; Occurrences", 80, 0, 1.5)
         FillHist(chi_square_3hits_X, histo_X)
 
-        chi_square_3hits_Y = [chi_square for chi_square in chi_square_Y if chi_square_Y[1] == 3]
+        chi_square_3hits_Y = [chi_square for chi_square in chi_square_Y if chi_square[1] == 3]
         histo_Y = ROOT.TH1F("ChiSquare_3hits_Y", "MiniDT Y ChiSquare (3 hits); ChiSquare; Occurrences", 80, 0, 1.5)
         FillHist(chi_square_3hits_Y, histo_Y)
         
         image_title = "3-hit-tracks"
  
     elif n_hits == 4:
-        chi_square_4hits_X = [chi_square for chi_square in chi_square_X if chi_square_X[1] == 4]
+        chi_square_4hits_X = [chi_square for chi_square in chi_square_X if chi_square[1] == 4]
         histo_X = ROOT.TH1F("ChiSquare_4hits_X", "MiniDT X ChiSquare (4 hits); ChiSquare; Occurrences", 80, 0, 1.5)
         FillHist(chi_square_4hits_X, histo_X)
 
-        chi_square_4hits_Y = [chi_square for chi_square in chi_square_Y if chi_square_Y[1] == 4]
+        chi_square_4hits_Y = [chi_square for chi_square in chi_square_Y if chi_square[1] == 4]
         histo_Y = ROOT.TH1F("ChiSquare_4hits_Y", "MiniDT Y ChiSquare (4 hits); ChiSquare; Occurrences", 80, 0, 1.5)
         FillHist(chi_square_4hits_Y, histo_Y)
     
@@ -286,10 +286,10 @@ def PlotChiSquares(chi_square_X, chi_square_Y, run, out_dir, n_hits = 0):
     c = ROOT.TCanvas("c", "c", 1000, 400)
     c.Divide(2, 1)
     c.cd(1)
-    histo_X.SetAxisRange(0, 1.5 * max_X, "Y")
+    histo_X.SetAxisRange(0, 1.2 * max_X, "Y")
     histo_X.Draw()
     c.cd(2)
-    histo_Y.SetAxisRange(0, 1.5 * max_Y, "Y")
+    histo_Y.SetAxisRange(0, 1.2 * max_Y, "Y")
     histo_Y.Draw()
     c.Draw()
 
@@ -316,22 +316,22 @@ def PlotResiduals(residual_X, residual_Y, run, out_dir, n_hits = 0):
     """
     
     if n_hits == 3:
-        residual_3hits_X = [residual for residual in residual_X if residual_X[1] == 3]
+        residual_3hits_X = [residual for residual in residual_X if residual[1] == 3]
         histo_X = ROOT.TH1F("Residuals_3hits_X", "MiniDT X Residuals (3 hits); Residual (cm); Occurrences", 150, -0.5, 0.5)
         FillHistResiduals(residual_3hits_X, histo_X)
 
-        residual_3hits_Y = [residual for residual in residual_Y if residual_Y[1] == 3]
+        residual_3hits_Y = [residual for residual in residual_Y if residual[1] == 3]
         histo_Y = ROOT.TH1F("Residuals_3hits_Y", "MiniDT Y Residuals (3 hits); Residual (cm); Occurrences", 150, -0.5, 0.5)
         FillHistResiduals(residual_3hits_Y, histo_Y)
         
         image_title = "3-hit-tracks"
  
     elif n_hits == 4:
-        residual_4hits_X = [residual for residual in residual_X if residual_X[1] == 4]
+        residual_4hits_X = [residual for residual in residual_X if residual[1] == 4]
         histo_X = ROOT.TH1F("Residuals_4hits_X", "MiniDT X Residuals (4 hits); Residual (cm); Occurrences", 150, -0.5, 0.5)
         FillHistResiduals(residual_4hits_X, histo_X)
 
-        residual_4hits_Y = [residual for residual in residual_Y if residual_Y[1] == 4]
+        residual_4hits_Y = [residual for residual in residual_Y if residual[1] == 4]
         histo_Y = ROOT.TH1F("Residuals_4hits_Y", "MiniDT Y Residuals (4 hits); Residual (cm); Occurrences", 150, -0.5, 0.5)
         FillHistResiduals(residual_4hits_Y, histo_Y)
     
@@ -355,10 +355,10 @@ def PlotResiduals(residual_X, residual_Y, run, out_dir, n_hits = 0):
     c = ROOT.TCanvas("c", "c", 1000, 400)
     c.Divide(2, 1)
     c.cd(1)
-    histo_X.SetAxisRange(0, 1.5 * max_X, "Y")
+    histo_X.SetAxisRange(0, 1.2 * max_X, "Y")
     histo_X.Draw()
     c.cd(2)
-    histo_Y.SetAxisRange(0, 1.5 * max_Y, "Y")
+    histo_Y.SetAxisRange(0, 1.2 * max_Y, "Y")
     histo_Y.Draw()
     c.Draw()
 
