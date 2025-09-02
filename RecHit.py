@@ -2,8 +2,6 @@ CellLength = 4.2 # cm
 CellHeight = 1.3 # cm
 VDrift = 0.00535 # cm / ns
 
-# raise ValueError for wrong initialization
-
 class RecHit:        
     """
     --------
