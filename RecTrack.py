@@ -7,24 +7,27 @@ import ROOT
 CellLength = 4.2 # cm
 CellHeight = 1.3 # cm
 
-class RecTrack:
+class RecTrack: 
     """
     --------
     Members
     --------
     
     Hits: the hits associated with the track, loosely selected based on the trigger primitive of reference with the SelectHits() function. 
-          After applying the class FitTPLateralities() method, the hits are reduced to the 3 or 4 hits most likely belonging to the reference TP. Necessary to initialize a RecTrack instance
+          After applying the class FitTPLateralities() method, the hits are reduced to the 3 or 4 hits most likely belonging to the 
+          reference TP. Necessary to initialize a RecTrack instance
     
     nHits: the number of hits of the track, after the FitTPLateralities() method. It is initiated to 0
     
     TP: the trigger primitive of reference. Necessary to initialize a RecTrack instance
     
-    Slope: the track slope, after the FitTPLateralities() method. It is initiated to 0 
+    Slope: the track slope (the angular coefficient of y = mx + q, where (0,0) is the chamber's lower left angle), after the 
+           FitTPLateralities() method. It is initiated to 0 
     
-    Intercept: the track vertical intercept, after the FitTPLateralities() method. It is initiated to 0 
+    Intercept: the track vertical intercept (q in y = mx + q), after the FitTPLateralities() method. It is initiated to 0 
     
-    XIntercept: the track horizontal intercept (between the 2nd and the 3rd layers of the MiniDT), after the FitTPLateralities() method. It is initiated to 0 
+    XIntercept: the track horizontal intercept (between the 2nd and the 3rd layers of the MiniDT), after the FitTPLateralities() method. 
+                It is initiated to 0 
     
     ChiSquare: the track chi square, after the FitTPLateralities() method. It is initiated to 0 
     
@@ -33,15 +36,21 @@ class RecTrack:
     Methods
     --------
     
-    __init__(self, hits, tp): RecTrack initialization. To initialize, a selection of hits and their corresponding trigger primitive are required
+    __init__(self, hits, tp): RecTrack initialization. To initialize, a selection of hits and their corresponding trigger primitive are
+                              required
     
-    FitTPLateralities(self): from the collection of hits associated with the trigger primitive at initialization, it selects the ones most likely belonging to the TP, i.e. they share the same layer and wire values.
-                             It retrieves the TP-computed laterality value for each hit, and it fits the resulting positions with the ROOT framework.
-                             The resulting slope, intercept, Xintercept and chi square values are assigned to the RecTrack members.
+    FitTPLateralities(self): from the collection of hits associated with the trigger primitive at initialization, it selects the ones most
+                             likely belonging to the TP, i.e. they share the same layer and wire values.
+                             It retrieves the TP-computed laterality value for each hit, and it fits the resulting positions with the 
+                             ROOT framework.
+                             The resulting slope, intercept, Xintercept and chi square values are assigned to the RecTrack members
     
-    PlotFit(self): this function plots RecTrack (hits and fitted track) after the FitTPLateralities() results, in a cross-section view of the MiniDT.
+    PlotFit(self): this function plots RecTrack (hits and fitted track) after the FitTPLateralities() results, in a cross-section view of
+                   the MiniDT
     
-    ResidualHitWireDistance(self): this function computes the difference between the measured horizontal hit position and the expected hit position from the track fitting. It returns this difference and the distance of the hit orizontal position from the corresponding cell's anodic wire
+    ResidualHitWireDistance(self): this function computes the difference between the measured horizontal hit position and the expected hit
+                                   position from the track fitting, for a selection of hits in the whole run. It returns this difference 
+                                   and the distance of the hit orizontal position from the corresponding cell's anodic wire
     
     HoughFit(self): this function exploits a Hough Transform (HT) method fit on the hits selected by the FitTPLateralities() method. 
                     For each hit, it computes the function c = x[i] + m * y, where x and y are the hit.Position values (both the left and 
@@ -51,7 +60,7 @@ class RecTrack:
                     called 'Hough accumulator' will be the most populated and will be used to compute the RecTrack values. 
                     The range of values for m and c that will define the histogram bounds are still under optimization. For now, the bins
                     for m values are 20 mrad wide, in the [-60°, +60°] interval circa wrt the normal to the MiniDT layers, 
-                    while the bins for c values are 2 mm wide, covering a length of approximately 1 m.
+                    while the bins for c values are 2 mm wide, covering a length of approximately 1 m
                     -----------
                     CAVEAT
                     -----------
@@ -101,7 +110,7 @@ class RecTrack:
             self.XIntercept = (2 * CellHeight - FitFunction.GetParameter(1)) / FitFunction.GetParameter(0)
             self.ChiSquare = FitFunction.GetChisquare()
             
-    def PlotFit(self): # it just depends on hits that belong to the RecTrack
+    def PlotFit(self): 
         PlotCells = {}
         PlotWires = {}
         PlotHits = {}
