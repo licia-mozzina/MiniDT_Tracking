@@ -103,4 +103,4 @@ def PlotCellRates(hits, run, out_dir):
 
     plt.tight_layout()
     plt.show()
-    plt.savefig(f"{out_dir}/CellsRate_{run}.png", dpi = 300, bbox_inches = 'tight')
+    fig.savefig(f"{out_dir}/CellsRate_{run}.png", dpi = 300, bbox_inches = 'tight')
