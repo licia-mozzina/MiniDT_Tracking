@@ -39,15 +39,16 @@ The MiniDTs data are divided into two streams:
 
 Moreover, both streams encode an additional information that is used in this code, to compute when a hit/TPG was produced: 
 - `arrival`: it provides the following values, which can be accessed with the labels in the list:
-    * `OC` : orbit counter, reset every 40 s, approximately
-    * `BX` : bunch crossing number
+    * `OC` : orbit counter for the LHC orbit. Reset every 40 s, approximately
+    * `BX` : bunch crossing counter for the LHC bunch crossing number
     
 This code does **not** make use of the `position`, `slope` and `chi2` values of TPGs. Instead, it exploits the collision time (t0), and the list of hits belonging to the track with their corresponding 'laterality' to solve the left-right ambiguity, characteristic of the Drift Tube detectors (each hit can be reconstructed either left or right the anode wire).
 
 Even though this code employs both data streams, the goal for MiniDTs standalone tracks will be to completely get rid of the use of TPGs.
 
-The stream objects under the module are list-like. They can be indexed (stream\[3\]), sliced (stream\[3:7\]) or iterated (for datum in stream), and their length queried (len(stream)).
- A simple way to directly access the data is the following. Go to the parent folder, open a python console, then do:
+The data streams contain objects that are list-like. They can be indexed (stream\[3\]), sliced (stream\[3:7\]) or iterated (for datum in stream), and their length queried (len(stream)).
+
+ A simple way to directly access the data is to go to the parent folder, open a Python console, then do:
 ```
 ## this line imports the whole dump as a module, which has the individual dump data streams
 import example_data_cosmic_rays as dump
@@ -101,7 +102,7 @@ This code plots the distribution of track quantities (number of hits, slope, int
 
 <img src="https://github.com/licia-mozzina/MiniDT_Tracking/blob/main/Plots_example_data_cosmic_rays_15ns/TrackResiduals_example_data_cosmic_rays_all-tracks.png" width="500">
 
-**Residuals vs distance from anode wire distribution**: the distribution of track residuals (the difference in position between the expected hit position, from the track fit, and the actual hit position) versus the distance from the anode wire. To completely reconstruct a hit, three quantities are needed: a time pedestal, a drift velocity value and the correct laterality. Generally, the correct time pedestal and drift velocity values are calibrated by plotting the 2d track residuals distribution.
+**Residuals vs distance from anode wire distribution**: the distribution of track residuals (the difference in position between the expected hit position, from the track fit, and the actual hit position) versus the distance from the anode wire. To completely reconstruct a hit, three quantities are needed: a time pedestal, a drift velocity value and the correct laterality. This plot serves as a calibration probe for the correct time pedestal and drift velocity values.
 
 <img src="https://github.com/licia-mozzina/MiniDT_Tracking/blob/main/Plots_example_data_cosmic_rays_15ns/TrackResidualsVsDistance_example_data_cosmic_rays.png" width="500">
 
@@ -121,11 +122,11 @@ Finally, the user can display, for each event, the reconstructed track and its s
 
 <img src="https://github.com/licia-mozzina/MiniDT_Tracking/blob/main/Plots_example_data_cosmic_rays_15ns/event_display.png" width="500">
 
-**Hough accumulator**: the Hough Transform method computes, for each hit, the function c = x[i] + m * y, where x and y are the hit position 
-                    values (both the left and right x options are considered), and both m and c are unknown. More precisely, m is the inverse angular coefficient of 
-                    the RecTrack and c is the track interception on the lower bound of the cell (i.e. at y = 0). Hits belonging to the same 
-                    track will share the same m and c values, therefore the corresponding bin of the 2d histogram of m (horizontal) and c (vertical) values, the so-
-                    called 'Hough accumulator', will be the most populated and will be used to compute the RecTrack values. The accumulator maximum region appears as a bright spot in the plot.
+**Hough accumulator**: the Hough Transform method computes, for each hit, the function c = x\[i\] + m * y, where x and y are the hit position 
+                    values in the chamber local frame of reference (both the left and right x options are considered), and both m and c are the track parameters of unknown value. More precisely, m is the inverse angular coefficient of 
+                    the reconstructed trach and c is the track interception on the lower bound of the cell (i.e. at y = 0). Hits belonging to the same 
+                    track will share the same m and c values, therefore the corresponding bin of the 2D histogram of m (horizontal) and c (vertical) values, the so-
+                    called 'Hough accumulator', will be the most populated and will be used to compute the track parameters. The accumulator maximum region appears as a bright spot in the plot.
 
 <img src="https://github.com/licia-mozzina/MiniDT_Tracking/blob/main/Plots_example_data_cosmic_rays_15ns/Hough_accumulator.png" width="500">
 
