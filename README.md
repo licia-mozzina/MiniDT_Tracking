@@ -93,7 +93,7 @@ This code plots the distribution of track quantities (number of hits, slope, int
 
 **Chi-square distribution**: the distribution of the chi-square of tracks. Shown here, the values for all tracks, but there are plots contanining only 3-hits or 4-hits tracks as well.
 
-<img src="http://github.com/licia-mozzina/MiniDT_Tracking/blob/main/Plots_example_data_cosmic_rays_15ns/TrackChiSquare_example_data_cosmic_rays_all-tracks.png" width="500">
+<img src="https://github.com/licia-mozzina/MiniDT_Tracking/blob/main/Plots_example_data_cosmic_rays_15ns/TrackChiSquare_example_data_cosmic_rays_all-tracks.png" width="500">
 
 **Residuals distribution**: the distribution of track residuals (the difference in position between the expected hit position, from the track fit, and the actual hit position). Shown here, the values for all tracks, but there are plots contanining only 3-hits or 4-hits tracks as well.
 
