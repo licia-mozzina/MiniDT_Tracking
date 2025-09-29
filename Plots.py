@@ -62,7 +62,7 @@ def PlotLayerRates(hits, run, out_dir):
 
     plt.tight_layout()
     plt.show()
-    fig.savefig(f"{out_dir}/LayersRate_{run}.png", dpi=300, bbox_inches='tight')
+    fig.savefig(f"{out_dir}/LayersRate_{run}.png", dpi=300, bbox_inches='tight', facecolor='white', edgecolor='white')
     
 
 def PlotCellRates(hits, run, out_dir):
@@ -106,7 +106,7 @@ def PlotCellRates(hits, run, out_dir):
 
     plt.tight_layout()
     plt.show()
-    fig.savefig(f"{out_dir}/CellsRate_{run}.png", dpi = 300, bbox_inches = 'tight')
+    fig.savefig(f"{out_dir}/CellsRate_{run}.png", dpi = 300, bbox_inches = 'tight', facecolor='white', edgecolor='white')
 
 
 
