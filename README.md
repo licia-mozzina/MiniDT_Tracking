@@ -1,6 +1,8 @@
 # **A tracking analyzer for MiniDTs**
-This code reconstructs muon tracks from the MiniDTs detectors data. It plots the distributionssw of track quantities (number of hits, slope, intercept, chi-square, residuals) during a run of data taking and saves them in .png format. The code can reconstruct tracks in two ways, either exploiting information from the DAQ system, or with a Hough Transform based method, which is under optimization.
+This code reconstructs muon tracks from the MiniDTs detectors data. It plots the distributions of track quantities (number of hits, slope, intercept, chi-square, residuals) during a run of data taking and saves them in .png format. The code can reconstruct tracks in two ways, either exploiting information from the DAQ system, or with a Hough Transform based method, which is under optimization.
 Additionally, this code provides monitoring of hit rates, throughout a run, for each layer or each cell in the MiniDT detectors. 
+
+Two MiniDT detectors were installed, in March 2025, in the SND@LHC (Scattering and Neutrino Detector) experiment at CERN, as part of its muon system, to provide high resolution x-y measurements. Inspecting the MiniDT muon reconstructed track quantities is fundamental to assess that the chambers function as expected: disparities in the number of reconstructed tracks between different chambers and a great presence of low quality tracks may point out to hardware issues (gas leaks, electronics malfunctions). Moreover, the agreement between distributions of muon track quantities and the ones obtained with the rest of the SND@LHC detector is a necessary checkpoint before the correct integration of MiniDT reconstructed tracks in the SND@LHC data. 
 
 ## Table of Contents
 * [The MiniDTs detectors](#the-minidts-detectors)
@@ -123,7 +125,7 @@ Finally, the user can display, for each event, the reconstructed track and its s
                     values (both the left and right x options are considered), and both m and c are unknown. More precisely, m is the inverse angular coefficient of 
                     the RecTrack and c is the track interception on the lower bound of the cell (i.e. at y = 0). Hits belonging to the same 
                     track will share the same m and c values, therefore the corresponding bin of the 2d histogram of m (horizontal) and c (vertical) values, the so-
-                    called 'Hough accumulator' will be the most populated and will be used to compute the RecTrack values. 
+                    called 'Hough accumulator', will be the most populated and will be used to compute the RecTrack values. The accumulator maximum region appears as a bright spot in the plot.
 
 <img src="https://github.com/licia-mozzina/MiniDT_Tracking/blob/main/Plots_example_data_cosmic_rays_15ns/Hough_accumulator.png" width="500">
 
