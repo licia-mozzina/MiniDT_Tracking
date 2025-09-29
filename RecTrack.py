@@ -15,7 +15,7 @@ class RecTrack:
     
     Hits: the hits associated with the track, loosely selected based on the trigger primitive of reference with the SelectHits() function. 
           After applying the class FitTPLateralities() method, the hits are reduced to the 3 or 4 hits most likely belonging to the 
-          reference TP. Necessary to initialize a RecTrack instance
+          reference TP. Necessary to initialize a RecTrack instance. If the hits are less than 3, a ValueError exception is raised
     
     nHits: the number of hits of the track, after the FitTPLateralities() method. It is initiated to 0
     
@@ -40,7 +40,8 @@ class RecTrack:
                               required
     
     FitTPLateralities(self): from the collection of hits associated with the trigger primitive at initialization, it selects the ones most
-                             likely belonging to the TP, i.e. they share the same layer and wire values.
+                             likely belonging to the TP, i.e. they share the same layer and wire values. If the hits total number is 
+                             different from 3 or 4, the event is discarded. 
                              It retrieves the TP-computed laterality value for each hit, and it fits the resulting positions with the 
                              ROOT framework.
                              The resulting slope, intercept, Xintercept and chi square values are assigned to the RecTrack members
@@ -53,7 +54,7 @@ class RecTrack:
                                    and the distance of the hit orizontal position from the corresponding cell's anodic wire
     
     HoughFit(self): this function exploits a Hough Transform (HT) method fit on the hits selected by the FitTPLateralities() method. 
-                    For each hit, it computes the function c = x[i] + m * y, where x and y are the hit.Position values (both the left and 
+                    For each hit, it computes the function c = x[i] + m * y, where x and y are the hit. Position values (both the left and 
                     right x options are considered), and both m and c are unknown. More precisely, m is the inverse angular coefficient of 
                     the RecTrack and c is the track interception on the lower bound of the cell (i.e. at y = 0). Hits belonging to the same 
                     track will share the same m and c values, therefore the corresponding bin of the 2d histogram of m and c values, the so-
@@ -69,6 +70,8 @@ class RecTrack:
     
     """
     def __init__(self, hits, tp):
+        if not (len(hits) > 2):
+            raise ValueError(f"3 hits expected at least, got {len(hits)}. RecTrack cannot be initialized")
         self.Hits = hits
         self.nHits = 0
         self.TP = tp
@@ -93,6 +96,9 @@ class RecTrack:
                         matching_hit.SetHitLaterality(laterality)
                         HitsValidLateral_x.append(self.Hits[i].Position[laterality][0])
                         HitsValidLateral_y.append(self.Hits[i].Position[laterality][1])
+        
+        if (self.nHits != 3) and (self.nHits != 4):
+            raise ValueError(f"3 or 4 hits expected, got {self.nHits}. RecTrack fit cannot be performed")
         
         HitsValidLateral_x = np.array(HitsValidLateral_x)
         HitsValidLateral_y = np.array(HitsValidLateral_y)
@@ -201,6 +207,8 @@ class RecTrack:
             c_track = accumulator_peak[0] / (c_values / 100)
 
         hist, xedges, yedges, image = plt.hist2d(m_plot, c_plot, bins=[1000,1000], range=[[-2, 2],[-20, 80]])
+        plt.xlabel("m (tangent values)")
+        plt.ylabel("c (cm)")
         plt.colorbar()
         plt.show()
         plt.clf()
