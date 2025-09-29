@@ -1,7 +1,114 @@
 import sys
+import numpy as np
+import matplotlib.pyplot as plt
 import ROOT
 
-# slope cut?
+def PlotLayerRates(hits, run, out_dir):
+    """
+    This function plots the hits rate in each layer of both MiniDT X and MiniDT Y, and saves it in .png format. Each point is averaged over 
+    approximately 40 s, corrsponding to the time it takes the VCU118 for the orbit counter reset. The function requires hits that have 
+    already been assigned global timestamps.
+    
+    -----------
+    Parameters
+    -----------
+    
+    hist: the run hits collection
+    
+    run: the run number for the plot title
+    
+    out_dir: the directory where the .png will be saved
+    
+    """   
+    binsize = 10 # binning in seconds
+    rate_x = []
+    rate_y = []
+    time = []
+
+    rate_step = np.array([[0,0,0,0], [0,0,0,0]])
+    orbit_reset_time = 524288 * 1e-6 * 3564 / 40.0789
+    this_step = 0
+
+    orbit_max_counter = 0
+
+    for j, h in enumerate(hits):
+        ts, st, ly = h['timestamp'], h['st'], h['ly']
+        if h['timestamp'] > this_step + orbit_reset_time:
+            rate_x.append(rate_step[0] / orbit_reset_time)
+            rate_y.append(rate_step[1] / orbit_reset_time)
+            time.append(this_step)
+            rate_step = np.array([[0,0,0,0], [0,0,0,0]])
+            this_step += orbit_reset_time
+        else:
+            rate_step[st][ly] += 1
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    plt.rc('font', family='serif')
+    plt.rc('image', cmap='viridis')
+    plt.suptitle(f"{run}", fontsize=13)
+    titles = ["MiniDT X ", "MiniDT Y"]
+
+    labels = ['L1', 'L2', 'L3', 'L4']
+
+    axes[0].plot(time[1:], rate_x[1:], label = labels) # first one may start at high OC number, fake small rate
+    axes[1].plot(time[1:], rate_y[1:], label = labels)
+    for i in range(2):
+        plt.rc('font', family='serif')
+        plt.rc('image', cmap='viridis')
+        axes[i].set_xlabel('Time (s)')
+        axes[i].set_ylabel('Rate (Hz)')
+        axes[i].set_title(titles[i])
+        axes[i].legend()
+
+    plt.tight_layout()
+    plt.show()
+    fig.savefig(f"{out_dir}/LayersRate_{run}.png", dpi=300, bbox_inches='tight')
+    
+
+def PlotCellRates(hits, run, out_dir):
+    """
+    This function plots the hits rate in each cell of both MiniDT X and MiniDT Y, averaged over the interval between the first and last hit timestamps, and saves it in .png format. The function requires hits that have already been assigned global timestamps.
+    
+    -----------
+    Parameters
+    -----------
+    
+    hist: the run hits collection
+    
+    run: the run number for the plot title
+    
+    out_dir: the directory where the .png will be saved
+    
+    """
+    start_time = hits[0]['timestamp']
+    stop_time = hits[-1]['timestamp']
+
+    histo = np.array([[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
+        [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]])
+    
+    for j, h in enumerate(hits):
+        st, ly, wi = h['st'], h['ly'], h['wi']
+        histo[st][ly][wi] += 1
+
+    histo_rate = histo / (stop_time - start_time)
+
+    fig, axes = plt.subplots(1, 2, figsize = (12, 5))
+    plt.suptitle(f"{run}", fontsize = 13)
+    titles = ["MiniDT X ", "MiniDT Y"]
+
+    for i in range(2): 
+        ax = axes[i]
+        img = ax.imshow(histo_rate[i], cmap = 'viridis', aspect = 'auto', origin = 'lower')  
+        ax.set_xlabel('Channels')
+        ax.set_ylabel('Layers')
+        ax.set_title(titles[i])
+        fig.colorbar(img, ax = ax, label = 'Rate')  
+
+    plt.tight_layout()
+    plt.show()
+    fig.savefig(f"{out_dir}/CellsRate_{run}.png", dpi = 300, bbox_inches = 'tight')
+
+
 
 def FillHist(values, hist):
     """
@@ -39,14 +146,20 @@ def FillHistResiduals(values, hist, dim = 1):
     """    
     if dim == 1:
         for value in values:
-            hist.Fill(value[0][0])
+            if (value[1] == 3) or (value[1] == 4):
+                hist.Fill(value[0][0])
+            else:
+                print("Invalid value for number of hits in track.", file = sys.stderr)
             
     elif dim == 2:
         for value in values:
-            hist.Fill(value[0][1], value[0][0])
-
+            if (value[1] == 3) or (value[1] == 4):
+                hist.Fill(value[0][1], value[0][0])
+            else:
+                print("Invalid value for number of hits in track.", file = sys.stderr)
     else:
-        print("Invalid value for residuals histogram dimension. Choose 1 (1D) or 2 (2D, residual vs distance)", file = sys.stderr)        
+        print("Invalid value for residuals histogram dimension. Choose 1 (1D) or 2 (2D, residual vs distance)", file = sys.stderr)  
+        
 
 def PlotHits(n_hits_X, n_hits_Y, run, out_dir):    
     """
@@ -179,31 +292,31 @@ def PlotXIntercepts(x_intercept_X, x_intercept_Y, run, out_dir, n_hits = 0):
     
     if n_hits == 3:
         x_intercept_3hits_X = [x_intercept for x_intercept in x_intercept_X if x_intercept[1] == 3]
-        histo_X = ROOT.TH1F("XIntercept_3hits_X", "MiniDT X XIntercept (3 hits); XIntercept; Occurrences", 70, 0, 72)
+        histo_X = ROOT.TH1F("XIntercept_3hits_X", "MiniDT X XIntercept (3 hits); XIntercept (cm); Occurrences", 70, 0, 72)
         FillHist(x_intercept_3hits_X, histo_X)
 
         x_intercept_3hits_Y = [x_intercept for x_intercept in x_intercept_Y if x_intercept[1] == 3]
-        histo_Y = ROOT.TH1F("XIntercept_3hits_Y", "MiniDT Y XIntercept (3 hits); XIntercept; Occurrences", 70, 0, 72)
+        histo_Y = ROOT.TH1F("XIntercept_3hits_Y", "MiniDT Y XIntercept (3 hits); XIntercept (cm); Occurrences", 70, 0, 72)
         FillHist(x_intercept_3hits_Y, histo_Y)
         
         image_title = "3-hit-tracks"
  
     elif n_hits == 4:
         x_intercept_4hits_X = [x_intercept for x_intercept in x_intercept_X if x_intercept[1] == 4]
-        histo_X = ROOT.TH1F("XIntercept_4hits_X", "MiniDT X XIntercept (4 hits); XIntercept; Occurrences", 50, 0, 72)
+        histo_X = ROOT.TH1F("XIntercept_4hits_X", "MiniDT X XIntercept (4 hits); XIntercept (cm); Occurrences", 50, 0, 72)
         FillHist(x_intercept_4hits_X, histo_X)
 
         x_intercept_4hits_Y = [x_intercept for x_intercept in x_intercept_Y if x_intercept[1] == 4]
-        histo_Y = ROOT.TH1F("XIntercept_4hits_Y", "MiniDT Y XIntercept (4 hits); XIntercept; Occurrences", 50, 0, 72)
+        histo_Y = ROOT.TH1F("XIntercept_4hits_Y", "MiniDT Y XIntercept (4 hits); XIntercept (cm); Occurrences", 50, 0, 72)
         FillHist(x_intercept_4hits_Y, histo_Y)
     
         image_title = "4-hit-tracks"
     
     elif n_hits == 0:
-        histo_X = ROOT.TH1F("XIntercept_X", "MiniDT X XIntercept; XIntercept; Occurrences", 100, 0, 72)
+        histo_X = ROOT.TH1F("XIntercept_X", "MiniDT X XIntercept; XIntercept (cm); Occurrences", 100, 0, 72)
         FillHist(x_intercept_X, histo_X)
 
-        histo_Y = ROOT.TH1F("XIntercept_Y", "MiniDT Y XIntercept; XIntercept; Occurrences", 100, 0, 72)
+        histo_Y = ROOT.TH1F("XIntercept_Y", "MiniDT Y XIntercept; XIntercept (cm); Occurrences", 100, 0, 72)
         FillHist(x_intercept_Y, histo_Y)
         
         image_title = "all-tracks"
